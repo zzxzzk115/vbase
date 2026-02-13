@@ -1,0 +1,20 @@
+local function add_example(name, src)
+    target(name)
+        set_kind("binary")
+        add_files(src)
+        add_includedirs("..", {public=false})
+        add_deps("vbase")
+        -- set target directory
+        set_targetdir("$(builddir)/$(plat)/$(arch)/$(mode)/" .. name)
+end
+
+add_example("example_01_uuid","01_uuid/main.cpp")
+add_example("example_02_result","02_result/main.cpp")
+add_example("example_03_strong_id","03_strong_id/main.cpp")
+add_example("example_04_binary_rw","04_binary_rw/main.cpp")
+add_example("example_05_signal","05_signal/main.cpp")
+add_example("example_06_event_bus","06_event_bus/main.cpp")
+add_example("example_07_services_and_modules","07_services_and_modules/main.cpp")
+add_example("example_08_scope_exit","08_scope_exit/main.cpp")
+add_example("example_09_singleton","09_singleton/main.cpp")
+add_example("example_10_pimpl","10_pimpl/main.cpp")
