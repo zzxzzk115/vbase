@@ -126,3 +126,15 @@ namespace vbase
         return id;
     }
 } // namespace vbase
+
+namespace std
+{
+    template<>
+    struct hash<vbase::UUID>
+    {
+        size_t operator()(const vbase::UUID& id) const noexcept
+        {
+            return std::hash<std::string> {}(vbase::to_string(id));
+        }
+    };
+} // namespace std
