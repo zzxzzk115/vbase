@@ -3,6 +3,7 @@
 #include "vbase/core/assert.hpp"
 #include "vbase/module/imodule.hpp"
 
+#include <cstdint>
 #include <string>
 #include <unordered_map>
 #include <vector>
