@@ -1,8 +1,10 @@
 #pragma once
 
 #include "vbase/core/assert.hpp"
+#include "vbase/core/hash.hpp"
+#include "vbase/patterns/service_concept.hpp"
 
-#include <typeindex>
+#include <cstdint>
 #include <unordered_map>
 
 namespace vbase
@@ -10,31 +12,42 @@ namespace vbase
     class ServiceRegistry
     {
     public:
-        template<class T>
+        template<ServiceType T>
         void provide(T* instance)
         {
             VBASE_ASSERT(instance != nullptr);
-            m_Map[std::type_index(typeid(T))] = instance;
+
+            const uint64_t key = hashString(T::serviceName());
+
+            auto [it, inserted] = m_Map.emplace(key, instance);
+
+            VBASE_ASSERT(inserted && "Service already registered");
         }
 
-        template<class T>
+        template<ServiceType T>
         T* tryGet() const
         {
-            auto it = m_Map.find(std::type_index(typeid(T)));
+            const uint64_t key = hashString(T::serviceName());
+
+            auto it = m_Map.find(key);
+
             if (it == m_Map.end())
                 return nullptr;
-            return reinterpret_cast<T*>(it->second);
+
+            return static_cast<T*>(it->second);
         }
 
-        template<class T>
+        template<ServiceType T>
         T& require() const
         {
             T* p = tryGet<T>();
+
             VBASE_ASSERT(p != nullptr);
+
             return *p;
         }
 
     private:
-        std::unordered_map<std::type_index, void*> m_Map;
+        std::unordered_map<uint64_t, void*> m_Map;
     };
 } // namespace vbase

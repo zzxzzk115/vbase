@@ -6,12 +6,14 @@
 
 using namespace vbase;
 
-struct ILogger
+struct ILoggerService
 {
     virtual void log(const std::string&) = 0;
+
+    static constexpr auto serviceName() { return "ILogger"; }
 };
 
-class Logger : public IModule, public ILogger
+class Logger : public IModule, public ILoggerService
 {
 public:
     Logger(ServiceRegistry& s) : m_ServiceRegistry(s) {}
@@ -20,7 +22,7 @@ public:
 
     bool init() override
     {
-        m_ServiceRegistry.provide<ILogger>(this);
+        m_ServiceRegistry.provide<ILoggerService>(this);
         log("init");
         return true;
     }
@@ -42,14 +44,14 @@ public:
 
     bool init() override
     {
-        auto& logger = m_ServiceRegistry.require<ILogger>();
+        auto& logger = m_ServiceRegistry.require<ILoggerService>();
         logger.log("SomeOtherModule init");
         return true;
     }
 
     void shutdown() override
     {
-        auto& logger = m_ServiceRegistry.require<ILogger>();
+        auto& logger = m_ServiceRegistry.require<ILoggerService>();
         logger.log("SomeOtherModule shutdown");
     }
 

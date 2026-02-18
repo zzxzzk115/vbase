@@ -1,6 +1,7 @@
 #pragma once
 
 #include "vbase/core/assert.hpp"
+#include "vbase/core/hash.hpp"
 #include "vbase/module/imodule.hpp"
 
 #include <cstdint>
@@ -23,10 +24,10 @@ namespace vbase
         {
             const std::string n = mod.name();
             VBASE_ASSERT(!n.empty());
-            VBASE_ASSERT(m_NodesByName.find(n) == m_NodesByName.end());
+            VBASE_ASSERT(m_NodesByName.find(hashString(n)) == m_NodesByName.end());
 
             m_Nodes.push_back(Node {&mod, std::move(deps)});
-            m_NodesByName[n] = static_cast<uint32_t>(m_Nodes.size()) - 1;
+            m_NodesByName[hashString(n)] = static_cast<uint32_t>(m_Nodes.size()) - 1;
         }
 
         bool initAll()
@@ -75,7 +76,7 @@ namespace vbase
 
         bool dfsVisit(const std::string& name)
         {
-            auto stIt = m_State.find(name);
+            auto stIt = m_State.find(hashString(name));
             if (stIt != m_State.end())
             {
                 if (stIt->second == VisitState::eVisiting)
@@ -84,30 +85,30 @@ namespace vbase
                     return true;
             }
 
-            m_State[name] = VisitState::eVisiting;
+            m_State[hashString(name)] = VisitState::eVisiting;
 
-            auto it = m_NodesByName.find(name);
+            auto it = m_NodesByName.find(hashString(name));
             VBASE_ASSERT(it != m_NodesByName.end());
             const auto& node = m_Nodes[it->second];
 
             for (const auto& dep : node.deps)
             {
-                if (m_NodesByName.find(dep) == m_NodesByName.end())
+                if (m_NodesByName.find(hashString(dep)) == m_NodesByName.end())
                     return false; // missing dep
                 if (!dfsVisit(dep))
                     return false;
             }
 
-            m_State[name] = VisitState::eVisited;
+            m_State[hashString(name)] = VisitState::eVisited;
             m_InitOrder.push_back(it->second);
             return true;
         }
 
-        bool                                      m_Inited {false};
-        std::vector<Node>                         m_Nodes;
-        std::unordered_map<std::string, uint32_t> m_NodesByName;
+        bool                                   m_Inited {false};
+        std::vector<Node>                      m_Nodes;
+        std::unordered_map<uint64_t, uint32_t> m_NodesByName;
 
-        std::unordered_map<std::string, VisitState> m_State;
-        std::vector<uint32_t>                       m_InitOrder;
+        std::unordered_map<uint64_t, VisitState> m_State;
+        std::vector<uint32_t>                    m_InitOrder;
     };
 } // namespace vbase
