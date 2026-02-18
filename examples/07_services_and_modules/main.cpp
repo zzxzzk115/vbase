@@ -2,15 +2,15 @@
 
 #include <vbase/module/imodule.hpp>
 #include <vbase/module/module_registry.hpp>
-#include <vbase/patterns/service_registry.hpp>
+#include <vbase/service/service_registry.hpp>
 
 using namespace vbase;
 
 struct ILoggerService
 {
-    virtual void log(const std::string&) = 0;
+    SERVICE_REGISTER(ILoggerService)
 
-    static constexpr auto serviceName() { return "ILogger"; }
+    virtual void log(const std::string&) = 0;
 };
 
 class Logger : public IModule, public ILoggerService
