@@ -12,7 +12,7 @@
 
 namespace vbase
 {
-    std::filesystem::path executable_path()
+    inline std::filesystem::path executable_path()
     {
 #ifdef _WIN32
         wchar_t buffer[MAX_PATH];
@@ -32,5 +32,5 @@ namespace vbase
 #endif
     }
 
-    std::filesystem::path executable_dir() { return executable_path().parent_path(); }
+    inline std::filesystem::path executable_dir() { return executable_path().parent_path(); }
 } // namespace vbase
